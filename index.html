@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fed & Gold Macro Matrix V11 Pro</title>
+    <title>Fed & Gold Macro Matrix V12 Pro</title>
     <meta name="theme-color" content="#0b0f19">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
@@ -13,6 +13,7 @@
         .controls-top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         .lang-btn, .month-select { background: #374151; color: #fff; border: 1px solid #4b5563; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
         .lang-btn:hover, .month-select:hover { background: #4b5563; }
+        .autosave-badge { background: #065f46; color: #34d399; border: 1px solid #059669; padding: 6px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 5px; }
         .card { background-color: #1f2937; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .card h2 { font-size: 14px; margin-bottom: 10px; color: #60a5fa; border-bottom: 1px solid #374151; padding-bottom: 5px; }
         .rate-banner { background: #111827; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-right: 3px solid #fbbf24; font-size: 12px; }
@@ -38,8 +39,13 @@
 <body>
 
     <header>
-        <h1 id="uiTitle">سیستمی پێشکەوتووی فێد و بازاڕ (V11 Pro)</h1>
+        <h1 id="uiTitle">سیستمی پێشکەوتووی فێد و بازاڕ (V12 Pro)</h1>
         <div class="controls-top">
+            <!-- نیشاندەری ئۆتۆ سەیڤ -->
+            <div class="autosave-badge">
+                <span style="font-size: 8px;">●</span>
+                <span id="lblAutoSave">پاشەکەوتی ئۆتۆماتیکی</span>
+            </div>
             <!-- لیستی مانگەکانی ساڵ -->
             <select id="selectedMonth" class="month-select" onchange="changeMonth()">
                 <option value="Jan">کانونی دووەم (Jan)</option>
@@ -243,8 +249,9 @@
 
         const texts = {
             ckb: {
-                title: "سیستمی پێشکەوتووی فێد و بازاڕ (V11 Pro)",
+                title: "سیستمی پێشکەوتووی فێد و بازاڕ (V12 Pro)",
                 langBtn: "English",
+                autoSave: "پاشەکەوتی ئۆتۆماتیکی",
                 inputsTitle: "داتاکانی ماکروو (ئێستا، پێشبینی، پێشوو)",
                 hIndicator: "نیشاندەر", hActual: "ئێستا", hForecast: "پێشبینی", hPrev: "پێشوو",
                 secLeading: "داتای پێشەنگ و کاریگەر (Leading Indicators)",
@@ -258,8 +265,9 @@
                 lblFedRate: "ڕێژەی ئێستای سوودی فێد (Fed Funds Rate):"
             },
             en: {
-                title: "Advanced Fed & Market Matrix V11 Pro",
+                title: "Advanced Fed & Market Matrix V12 Pro",
                 langBtn: "کوردی",
+                autoSave: "Auto Save Active",
                 inputsTitle: "Macro Data (Actual, Forecast, Previous)",
                 hIndicator: "Indicator", hActual: "Actual", hForecast: "Forecast", hPrev: "Previous",
                 secLeading: "Leading & Influencing Indicators",
@@ -278,7 +286,7 @@
 
         function getActiveKey() {
             let month = document.getElementById('selectedMonth').value;
-            return 'macroDataV11_' + month;
+            return 'macroDataV12_' + month;
         }
 
         function saveData() {
@@ -299,9 +307,6 @@
                         document.getElementById(id).value = data[id];
                     }
                 });
-            } else {
-                // ئەگەر مانگەکە داتای تێنەبوو، نرخە بنەڕەتییەکان بهێڵەرەوە
-                runAnalysis();
             }
             runAnalysis();
         }
@@ -315,6 +320,7 @@
             document.getElementById('htmlTag').setAttribute('dir', currentLang === 'ckb' ? 'rtl' : 'ltr');
             document.getElementById('uiTitle').innerText = texts[currentLang].title;
             document.getElementById('langToggleBtn').innerText = texts[currentLang].langBtn;
+            document.getElementById('lblAutoSave').innerText = texts[currentLang].autoSave;
             document.getElementById('lblFedRate').innerText = texts[currentLang].lblFedRate;
             document.getElementById('uiInputsTitle').innerText = texts[currentLang].inputsTitle;
             document.getElementById('hIndicator').innerText = texts[currentLang].hIndicator;
