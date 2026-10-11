@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fed & Gold Macro Matrix V12 Pro</title>
+    <title>Fed & Gold Macro Matrix V12.1 Pro</title>
     <meta name="theme-color" content="#0b0f19">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
@@ -39,14 +39,12 @@
 <body>
 
     <header>
-        <h1 id="uiTitle">سیستمی پێشکەوتووی فێد و بازاڕ (V12 Pro)</h1>
+        <h1 id="uiTitle">سیستمی پێشکەوتووی فێد و بازاڕ (V12.1 Pro)</h1>
         <div class="controls-top">
-            <!-- نیشاندەری ئۆتۆ سەیڤ -->
             <div class="autosave-badge">
                 <span style="font-size: 8px;">●</span>
                 <span id="lblAutoSave">پاشەکەوتی ئۆتۆماتیکی</span>
             </div>
-            <!-- لیستی مانگەکانی ساڵ -->
             <select id="selectedMonth" class="month-select" onchange="changeMonth()">
                 <option value="Jan">کانونی دووەم (Jan)</option>
                 <option value="Feb">پەڕپەڕە (Feb)</option>
@@ -66,7 +64,6 @@
     </header>
 
     <div class="card">
-        <!-- بەشی ڕێژەی سوودی بانکی فێد -->
         <div class="rate-banner">
             <span id="lblFedRate">ڕێژەی ئێستای سوودی فێد (Fed Funds Rate):</span>
             <div style="display: flex; align-items: center; gap: 5px;">
@@ -249,7 +246,7 @@
 
         const texts = {
             ckb: {
-                title: "سیستمی پێشکەوتووی فێد و بازاڕ (V12 Pro)",
+                title: "سیستمی پێشکەوتووی فێد و بازاڕ (V12.1 Pro)",
                 langBtn: "English",
                 autoSave: "پاشەکەوتی ئۆتۆماتیکی",
                 inputsTitle: "داتاکانی ماکروو (ئێستا، پێشبینی، پێشوو)",
@@ -265,7 +262,7 @@
                 lblFedRate: "ڕێژەی ئێستای سوودی فێد (Fed Funds Rate):"
             },
             en: {
-                title: "Advanced Fed & Market Matrix V12 Pro",
+                title: "Advanced Fed & Market Matrix V12.1 Pro",
                 langBtn: "کوردی",
                 autoSave: "Auto Save Active",
                 inputsTitle: "Macro Data (Actual, Forecast, Previous)",
@@ -286,13 +283,14 @@
 
         function getActiveKey() {
             let month = document.getElementById('selectedMonth').value;
-            return 'macroDataV12_' + month;
+            return 'macroDataV12.1_' + month;
         }
 
         function saveData() {
             let data = {};
             ids.forEach(id => {
-                data[id] = document.getElementById(id).value;
+                let el = document.getElementById(id);
+                if (el) data[id] = el.value;
             });
             localStorage.setItem(getActiveKey(), JSON.stringify(data));
             runAnalysis();
@@ -301,12 +299,14 @@
         function loadData() {
             let saved = localStorage.getItem(getActiveKey());
             if (saved) {
-                let data = JSON.parse(saved);
-                ids.forEach(id => {
-                    if (data[id] !== undefined) {
-                        document.getElementById(id).value = data[id];
-                    }
-                });
+                try {
+                    let data = JSON.parse(saved);
+                    ids.forEach(id => {
+                        if (data[id] !== undefined && document.getElementById(id)) {
+                            document.getElementById(id).value = data[id];
+                        }
+                    });
+                } catch(e) {}
             }
             runAnalysis();
         }
@@ -336,20 +336,22 @@
         }
 
         function runAnalysis() {
-            let fedRate = parseFloat(document.getElementById('fed_current_rate').value) || 4.5;
-            let pmi = parseFloat(document.getElementById('pmi_act').value);
-            let adp = parseFloat(document.getElementById('adp_act').value);
-            let jolts = parseFloat(document.getElementById('jolts_act').value);
-            let mich = parseFloat(document.getElementById('mich_act').value);
+            let fedRateInput = document.getElementById('fed_current_rate');
+            let fedRate = fedRateInput ? parseFloat(fedRateInput.value) || 4.5 : 4.5;
+            
+            let pmi = parseFloat(document.getElementById('pmi_act').value) || 0;
+            let adp = parseFloat(document.getElementById('adp_act').value) || 0;
+            let jolts = parseFloat(document.getElementById('jolts_act').value) || 0;
+            let mich = parseFloat(document.getElementById('mich_act').value) || 0;
 
-            let cpi = parseFloat(document.getElementById('cpi_act').value);
-            let core_cpi = parseFloat(document.getElementById('core_cpi_act').value);
-            let pce = parseFloat(document.getElementById('pce_act').value);
-            let nfp = parseFloat(document.getElementById('nfp_act').value);
-            let unemp = parseFloat(document.getElementById('unemp_act').value);
-            let ppi = parseFloat(document.getElementById('ppi_act').value);
-            let retail = parseFloat(document.getElementById('retail_act').value);
-            let gdp = parseFloat(document.getElementById('gdp_act').value);
+            let cpi = parseFloat(document.getElementById('cpi_act').value) || 0;
+            let core_cpi = parseFloat(document.getElementById('core_cpi_act').value) || 0;
+            let pce = parseFloat(document.getElementById('pce_act').value) || 0;
+            let nfp = parseFloat(document.getElementById('nfp_act').value) || 0;
+            let unemp = parseFloat(document.getElementById('unemp_act').value) || 0;
+            let ppi = parseFloat(document.getElementById('ppi_act').value) || 0;
+            let retail = parseFloat(document.getElementById('retail_act').value) || 0;
+            let gdp = parseFloat(document.getElementById('gdp_act').value) || 0;
 
             let hikeScore = 0;
             let cutScore = 0;
@@ -399,7 +401,8 @@
             `;
             document.getElementById('output').innerHTML = html;
 
-            let selectedMonthText = document.getElementById('selectedMonth').options[document.getElementById('selectedMonth').selectedIndex].text;
+            let monthSelect = document.getElementById('selectedMonth');
+            let selectedMonthText = monthSelect ? monthSelect.options[monthSelect.selectedIndex].text : '';
             let reportHtml = currentLang === 'ckb' ? `
                 <b>📌 ڕاپۆرتی شیکاری مانگانە (${selectedMonthText}):</b><br>
                 • <b>بارودۆخی ئێستای سوود:</b> ڕێژەی سەرەکی بانکی فێد لەسەر (${fedRate}٪) جێگیرە.<br><br>
