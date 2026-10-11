@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fed & Gold Macro Matrix V12.1 Pro</title>
+    <title>Fed & Gold Macro Matrix V12.2 Pro</title>
     <meta name="theme-color" content="#0b0f19">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
@@ -39,7 +39,7 @@
 <body>
 
     <header>
-        <h1 id="uiTitle">سیستمی پێشکەوتووی فێد و بازاڕ (V12.1 Pro)</h1>
+        <h1 id="uiTitle">سیستمی پێشکەوتووی فێد و بازاڕ (V12.2 Pro)</h1>
         <div class="controls-top">
             <div class="autosave-badge">
                 <span style="font-size: 8px;">●</span>
@@ -246,7 +246,7 @@
 
         const texts = {
             ckb: {
-                title: "سیستمی پێشکەوتووی فێد و بازاڕ (V12.1 Pro)",
+                title: "سیستمی پێشکەوتووی فێد و بازاڕ (V12.2 Pro)",
                 langBtn: "English",
                 autoSave: "پاشەکەوتی ئۆتۆماتیکی",
                 inputsTitle: "داتاکانی ماکروو (ئێستا، پێشبینی، پێشوو)",
@@ -262,7 +262,7 @@
                 lblFedRate: "ڕێژەی ئێستای سوودی فێد (Fed Funds Rate):"
             },
             en: {
-                title: "Advanced Fed & Market Matrix V12.1 Pro",
+                title: "Advanced Fed & Market Matrix V12.2 Pro",
                 langBtn: "کوردی",
                 autoSave: "Auto Save Active",
                 inputsTitle: "Macro Data (Actual, Forecast, Previous)",
@@ -283,7 +283,7 @@
 
         function getActiveKey() {
             let month = document.getElementById('selectedMonth').value;
-            return 'macroDataV12.1_' + month;
+            return 'macroDataV12.2_' + month;
         }
 
         function saveData() {
@@ -418,9 +418,10 @@
             document.getElementById('reportOutput').innerHTML = reportHtml;
         }
 
-        window.onload = function() {
+        // دڵنیابوونەوە لەوەی کاتێک پەڕەکە باری دەکرێت شیکارییەکە ڕاستەوخۆ دەست پێبکات
+        window.addEventListener('DOMContentLoaded', (event) => {
             loadData();
-        };
+        });
     </script>
 </body>
 </html>
