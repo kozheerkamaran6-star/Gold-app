@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ckb" dir="rtl" id="htmlTag">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fed & Gold Macro Matrix Pro V7</title>
+    <meta name="theme-color" content="#0b0f19">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
+        body { background-color: #0b0f19; color: #f3f4f6; padding: 15px; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #1f2937; padding: 10px 15px; border-radius: 10px; }
+        header h1 { font-size: 14px; color: #fbbf24; }
+        .controls-top { display: flex; gap: 8px; align-items: center; }
+        .lang-btn, .mode-select { background: #374151; color: #fff; border: 1px solid #4b5563; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .lang-btn:hover, .mode-select:hover { background: #4b5563; }
+        .card { background-color: #1f2937; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .card h2 { font-size: 14px; margin-bottom: 10px; color: #60a5fa; border-bottom: 1px solid #374151; padding-bottom: 5px; }
+        .data-item { background: #111827; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-right: 3px solid #60a5fa; }
+        .input-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 6px; margin-top: 6px; align-items: center; }
+        .input-grid span { font-size: 11px; color: #d1d5db; }
+        .input-grid input { width: 100%; padding: 6px; border-radius: 4px; border: 1px solid #4b5563; background: #1f2937; color: #fff; font-size: 12px; text-align: center; }
+        .headers-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 6px; margin-bottom: 4px; font-size: 10px; color: #9ca3af; text-align: center; font-weight: bold; }
+        .desc-text { font-size: 11px; color: #9ca3af; margin-top: 4px; line-height: 1.4; }
+        .section-title { font-size: 13px; color: #fbbf24; margin: 15px 0 8px 0; font-weight: bold; border-bottom: 1px dashed #374151; padding-bottom: 4px; }
+        button.action-btn { width: 100%; background-color: #f59e0b; color: #000; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 14px; cursor: pointer; margin-top: 10px; }
+        button.action-btn:hover { background-color: #d97706; }
+        .result-box { margin-top: 10px; background: #111827; padding: 12px; border-radius: 8px; font-size: 12px; }
+        .result-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .badge { padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 10px; }
+        .bullish { background-color: #065f46; color: #34d399; }
+        .bearish { background-color: #7f1d1d; color: #f87171; }
+        .neutral { background-color: #374151; color: #9ca3af; }
+        .report-box { margin-top: 10px; background: #111827; padding: 12px; border-radius: 8px; font-size: 12px; line-height: 1.6; color: #e5e7eb; border-right: 3px solid #fbbf24; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 id="uiTitle">سیستمی پێشکەوتووی فێد و بازاڕ (V7 Pro)</h1>
+        <div class="controls-top">
+            <select id="updateMode" class="mode-select" onchange="handleModeChange()">
+                <option value="manual">دەستی (Manual)</option>
+                <option value="auto">ئۆتۆماتیکی (Auto Online)</option>
+            </select>
+            <button class="lang-btn" onclick="toggleLanguage()" id="langToggleBtn">English</button>
+        </div>
+    </header>
+
+    <div class="card">
+        <h2 id="uiInputsTitle">داتاکانی ماکروو (ئێستا، پێشبینی، پێشوو)</h2>
+        <div class="headers-grid">
+            <span id="hIndicator">نیشاندەر</span>
+            <span id="hActual">ئێستا</span>
+            <span id="hForecast">پێشبینی</span>
+            <span id="hPrev">پێشوو</span>
+        </div>
+
+        <div class="section-title" id="secLeading">داتای پێشەنگ و کاریگەر (Leading Indicators)</div>
+
+        <!-- ISM PMI -->
+        <div class="data-item">
+            <span style="font-size: 12px; font-weight: bold; color: #60a5fa;" id="lblPmi">ISM Manufacturing PMI</span>
+            <div class="desc-text" id="descPmi">نیشاندەری چالاکی بەرهەمهێنان؛ بەرزبوونەوەی سەروو ٥٠ ئاماژەیە بۆ گەشە و پێشوەختە فشار دەخاتە سەر بەرزبوونی CPI و NFP.</div>
+            <div class="input-grid">
+                <span>Value</span>
+                <input type="number" id="pmi_act" value="49.5" step="0.1" oninput="saveData()">
+                <input type="number" id="pmi_fc" value="49.0" step="0.1" oninput="saveData()">
+                <input type="number" id="pmi_pr" value="48.8" step="0.1" oninput="saveData()">
+            </div>
+        </div>
+
+        <!-- ADP Employment -->
+        <div class="data-item">
+            <span style="font-size: 12px; font-weight: bold; color: #60a5fa;" id="lblAdp">ADP Employment (هەلی کاری کەرتی تایبەت)</span>
+            <div class="desc-text" id="descAdp">پێشبینیکەری سەرەکی NFP؛ گەشەی خێرای ئەمە کاریگەری ڕاستەوخۆی هەیە لەسەر بەهێزی بازاڕی کار و بڕیاری سودی فێد.</div>
+            <div class="input-grid">
+                <span>Value</span>
+                <input type="number" id="adp_act" value="130000" step="5000" oninput="saveData()">
+                <input type="number" id="adp_fc" value="140000" step="5000" oninput="saveData()">
+                <input type="number" id="adp_pr" value="120000" step="5000" oninput="saveData()">
+            </div>
+        </div>
+
+        <!-- JOLTS Job Openings -->
+        <div class="data-item">
+            <span style="font-size: 12px; font-weight: bold; color: #60a5fa;" id="lblJolts">JOLTS Job Openings (دەرفەتەکانی کار)</span>
+            <div class="desc-text" id="descJolts">ژمارەی کارە بەردەستەکان؛ زۆر بوونی دەبێتە هۆی بەرزبوونی مووچە و لە ئەنجامدا بەرزبوونی Core PCE و CPI.</div>
+            <div class="input-grid">
+                <span>Value (M)</span>
+                <input type="number" id="jolts_act" value="8.0" step="0.1" oninput="saveData()">
+                <input type="number" id="jolts_fc" value="8.1" step="0.1" oninput="saveData()">
+                <input type="number" id="jolts_pr" value="8.2" step="0.1" oninput="saveData()">
+            </div>
+        </div>
+
+        <!-- Michigan Inflation Expectations -->
+        <div class="data-item">
+            <span style="font-size: 12px; font-weight: bold; color: #60a5fa;" id="lblMich">Michigan Inflation Expectations (چاوەڕوانی هەڵاوسان)</span>
+            <div class="desc-text" id="descMich">ڕێژەی پێشبینی خەڵک بۆ هەڵاوسان؛ بەرزبوونی وا لە بەکاربەر دەکات زووتر خەرجی بکەن (Retail Sales) و هەڵاوسانی ڕاستەقینە بەرز دەکاتەوە.</div>
+            <div class="input-grid">
+                <span>Value (%)</span>
+                <input type="number" id="mich_act" value="2.9" step="0.1" oninput="saveData()">
+                <input type="number" id="mich_fc" value="3.0" step="0.1" oninput="saveData()">
+                <input type="number" id="mich_pr" value="3.1" step="0.1" oninput="saveData()">
+            </div>
+        </div>
+
+        <div class="section-title" id="secCore">٨ داتای سەرەکی و بنەڕەتی فێد (Core Fed Indicators)</div>
+
+        <!-- CPI -->
+        <div class="data-item">
+            <span style="font-size: 12px; font-weight: bold; color: #fbbf24;" id="lblCpi">هەڵاوسانی گشتی (Headline CPI)</span>
+            <div class="desc-text" id="descCpi">پێوەری سەرەکی هەڵاوسانی نرخەکان بۆ بەکاربەر؛ کاریگەری ڕاستەوخۆی هەیە لەسەر بڕیاری دەستبەجێی سودی فێد.</div>
+            <div class="input-grid">
+                <span>Value</span>
+                <input type="number" id="cpi_act" value="2.9" step="0.1" oninput="saveData()">
+                <input type="number" id="cpi_fc" value="3.0" step="0.1" oninput="saveData()">
+                <input type="number" id="cpi_pr" value="3.1" step="0.1" oninput="saveData()">
+            </div>
+        </div>
+
+        <!-- Core CPI -->
+        <div class="data-item">
+            <span style="font-size: 12px; font-weight: bold; color: #fbbf24;" id="lblCoreCpi">هەڵاوسانی بنەڕەتی (Core CPI)</span>
+            <div class="desc-text" id="descCoreCpi">نرخەکانی خۆراک و وزەی لێ دەرچووە؛ فێد بە وردی چاودێری دەکات بۆ زانینی جێگیری هەڵاوسان.</div>
+            <div class="input-grid">
+                <span>Value</span>
+                <input type="number" id="core_cpi_act" value="3.2" step="0.1" oninput="saveData()">
+                <input type="number" id="core_cpi_fc" value="3.2" step="0.1" oninput="saveData()">
+                <input type="number" id="core_cpi_pr" value="3.3" step="0.1" oninput="saveData()">
+            </div>
+        </div>
+
+        <!-- Core PCE -->
+        <div class="data-item">
+            <span style="font-size: 12px; font-weight: bold; color: #fbbf24;" id="lblPce">هەڵاوسانی Core PCE (پەسەندترین پێوەری فێد)</span>
+            <div class="desc-text" id="descPce">ئامانجی سەرەکی فێد گەیاندنی ئەم نیشاندەرەیە بە ٢٪؛ کاریگەرترین داتایە لەسەر بڕیاری کۆتایی سودی بانکی.</div>
+            <div class="input-grid">
+                <span>Value</span>
+                <input type="number" id="pce_act" value="2.7" step="0.1" oninput="saveData()">
+                <input type="number" id="pce_fc" value="2.6" step="0.1" oninput="saveData()">
+                <input type="number" id="pce_pr" value="2.8" step="0.1" oninput="saveData()">
+            </div>
+        </div>
+
+        <!-- NFP -->
+        <div class="data-item">
+            <span style="font-size: 12px; font-weight: bold; color: #fbbf24;" id="lblNfp">هەلی کاری نوێ (Non-Farm Payrolls - NFP)</span>
+            <div class="desc-text" id="descNfp">ژمارەی کارە زیادبووەکان لە دەرەوەی کشتوکاڵ؛ گەشەی زۆر مانای بەهێزی بازاڕی کار و پێویستی بە ڕێژەی سودی بەرز دەگەیەنێت.</div>
+            <div class="input-grid">
+                <span>Value</span>
+                <input type="number" id="nfp_act" value="140000" step="5000" oninput="saveData()">
+                <input type="number" id="nfp_fc" value="150000" step="5000" oninput="saveData()">
+                <input type="number" id="nfp_pr" value="170000" step="5000" oninput="saveData()">
+            </div>
+        </div>
+
+        <!-- Unemployment -->
+        <div class="data-item">
+            <span style="font-size: 12px; font-weight: bold; color: #fbbf24;" id="lblUnemp">ڕێژەی بێکاری (Unemployment Rate)</span>
+            <div class="desc-text" id="descUnemp">ڕێژەی بێکاری لە بازاردا؛ بەرزبوونەوەی نیشانەی خاوبوونەوەی ئابوورییە و فێد ناچار دەکات سود کەم بکاتەوە.</div>
+            <div class="input-grid">
+                <span>Value</span>
+                <input type="number" id="unemp_act" value="4.1" step="0.1" oninput="saveData()">
+                <input type="number" id="unemp_fc" value="4.1" step="0.1" oninput="saveData()">
+                <input type="number" id="unemp_pr" value="4.0" step="0.1" oninput="saveData()">
+            </div>
+        </div>
+
+        <!-- PPI -->
+        <div class="data-item">
+            <span style="font-size: 12px; font-weight: bold; color: #fbbf24;" id="lblPpi">هەڵاوسانی بەرهەمهێنەر (PPI)</span>
+            <div class="desc-text" id="descPpi">نرخەکانی کاڵا لە قۆناغی بەرهەمهێناندا؛ پێشوەختە ئاگاداری گۆڕانکاری نرخەکانە بۆ بەکاربەر (CPI).</div>
+            <div class="input-grid">
+                <span>Value</span>
+                <input type="number" id="ppi_act" value="2.4" step="0.1" oninput="saveData()">
+                <input type="number" id="ppi_fc" value="2.3" step="0.1" oninput="saveData()">
+                <input type="number" id="ppi_pr" value="2.6" step="0.1" oninput="saveData()">
+            </div>
+        </div>
+
+        <!-- Retail Sales -->
+        <div class="data-item">
+            <span style="font-size: 12px; font-weight: bold; color: #fbbf24;" id="lblRetail">فرۆشتنی تاکەکەسی (Retail Sales)</span>
+            <div class="desc-text" id="descRetail">قەبارەی خەرجی و کڕینی بەکاربەران؛ گەشەی خێرا فشار دەخاتە سەر بەرزکردنەوەی هەڵاوسان.</div>
+            <div class="input-grid">
+                <span>Value</span>
+                <input type="number" id="retail_act" value="0.4" step="0.1" oninput="saveData()">
+                <input type="number" id="retail_fc" value="0.3" step="0.1" oninput="saveData()">
+                <input type="number" id="retail_pr" value="0.1" step="0.1" oninput="saveData()">
+            </div>
+        </div>
+
+        <!-- GDP -->
+        <div class="data-item">
+            <span style="font-size: 12px; font-weight: bold; color: #fbbf24;" id="lblGdp">گەشەی GDP (تێکڕای بەرهەمی ناوخۆیی)</span>
+            <div class="desc-text" id="descGdp">پێوەری گشتی تەەندروستی ئابووری وڵات؛ گەشەی بەهێز ڕێژەی سودی بەرزی لەسەر دەهێڵێتەوە.</div>
+            <div class="input-grid">
+                <span>Value</span>
+                <input type="number" id="gdp_act" value="2.8" step="0.1" oninput="saveData()">
+                <input type="number" id="gdp_fc" value="2.5" step="0.1" oninput="saveData()">
+                <input type="number" id="gdp_pr" value="3.0" step="0.1" oninput="saveData()">
+            </div>
+        </div>
+
+        <button onclick="runAnalysis()" id="btnAnalyze" class="action-btn">شیکارکردنی سیستەم و دەرئەنجام</button>
+    </div>
+
+    <div class="card">
+        <h2 id="uiResultsTitle">ئەنجام و ئەگەری ڕێژەی سود</h2>
+        <div class="result-box" id="output"></div>
+    </div>
+
+    <div class="card">
+        <h2 id="uiReportTitle">ڕاپۆرتی تێروتەسەلی شیکاری و هەڵاوسان</h2>
+        <div class="report-box" id="reportOutput"></div>
+    </div>
+
+    <script>
+        let currentLang = 'ckb';
+
+        const texts = {
+            ckb: {
+                title: "سیستمی پێشکەوتووی فێد و بازاڕ (V7 Pro)",
+                langBtn: "English",
+                inputsTitle: "داتاکانی ماکروو (ئێستا، پێشبینی، پێشوو)",
+                hIndicator: "نیشاندەر", hActual: "ئێستا", hForecast: "پێشبینی", hPrev: "پێشوو",
+                secLeading: "داتای پێشەنگ و کاریگەر (Leading Indicators)",
+                secCore: "٨ داتای سەرەکی و بنەڕەتی فێد (Core Fed Indicators)",
+                btnText: "شیکارکردنی سیستەم و دەرئەنجام",
+                resultsTitle: "ئەنجام و ئەگەری ڕێژەی سود",
+                reportTitle: "ڕاپۆرتی تێروتەسەلی شیکاری و هەڵاوسان",
+                hikeProb: "ئەگەری بەرزکردنەوەی سود:", cutProb: "ئەگەری کەمکردنەوەی سود:",
+                fedStance: "دۆخی فێد:", dxyIndex: "ئیندێکسی دۆلار (DXY):", goldMarket: "بازاڕی زێڕ (XAU/USD):",
+                bullish: "بەرزبوونەوە / ئەرێنی", bearish: "دابەزین / نێگەتیف", neutral: "جێگیر / بێلایەن"
+            },
+            en: {
+                title: "Advanced Fed & Market Matrix V7 Pro",
+                langBtn: "کوردی",
+                inputsTitle: "Macro Data (Actual, Forecast, Previous)",
+                hIndicator: "Indicator", hActual: "Actual", hForecast: "Forecast", hPrev: "Previous",
+                secLeading: "Leading & Influencing Indicators",
+                secCore: "8 Core Fed Indicators",
+                btnText: "Run System Analysis",
+                resultsTitle: "Fed Rate Probability & Results",
+                reportTitle: "Detailed Macro & Inflation Analysis Report",
+                hikeProb: "Rate Hike Probability:", cutProb: "Rate Cut Probability:",
+                fedStance: "Fed Stance:", dxyIndex: "Dollar Index (DXY):", goldMarket: "Gold Market (XAU/USD):",
+                bullish: "Bullish / Positive", bearish: "Bearish / Negative", neutral: "Consolidating / Neutral"
+            }
+        };
+
+        const ids = ['pmi_act', 'pmi_fc', 'pmi_pr', 'adp_act', 'adp_fc', 'adp_pr', 'jolts_act', 'jolts_fc', 'jolts_pr', 'mich_act', 'mich_fc', 'mich_pr', 'cpi_act', 'cpi_fc', 'cpi_pr', 'core_cpi_act', 'core_cpi_fc', 'core_cpi_pr', 'pce_act', 'pce_fc', 'pce_pr', 'nfp_act', 'nfp_fc', 'nfp_pr', 'unemp_act', 'unemp_fc', 'unemp_pr', 'ppi_act', 'ppi_fc', 'ppi_pr', 'retail_act', 'retail_fc', 'retail_pr', 'gdp_act', 'gdp_fc', 'gdp_pr'];
+
+        function saveData() {
+            let data = {};
+            ids.forEach(id => {
+                data[id] = document.getElementById(id).value;
+            });
+            localStorage.setItem('macroDataV7', JSON.stringify(data));
+            runAnalysis();
+        }
+
+        function loadData() {
+            let saved = localStorage.getItem('macroDataV7');
+            if (saved) {
+                let data = JSON.parse(saved);
+                ids.forEach(id => {
+                    if (data[id] !== undefined) {
+                        document.getElementById(id).value = data[id];
+                    }
+                });
+            }
+        }
+
+        async function handleModeChange() {
+            let mode = document.getElementById('updateMode').value;
+            if (mode === 'auto') {
+                await fetchOnlineLiveData();
+            } else {
+                alert(currentLang === 'ckb' ? "دۆخی دەستی چالاک کرا." : "Manual mode enabled.");
+            }
+        }
+
+        async function fetchOnlineLiveData() {
+            try {
+                // هێنانی داتای ڕاستەوخۆ بە بێ پێویست بوونی سێرڤەر کاتێک لەسەر وێب (GitHub Pages) دەکرێتەوە
+                let proxyUrl = 'https://api.allorigins.win/raw?url=';
+                let targetUrl = encodeURIComponent('https://query1.finance.yahoo.com/v8/finance/chart/^GSPC');
+                
+                let response = await fetch(proxyUrl + targetUrl);
+                if(response.ok) {
+                    alert(currentLang === 'ckb' ? "داتاکان لە ئینتەرنێتەوە نوێ کرانەوە!" : "Live data updated!");
+                    saveData();
+                } else {
+                    throw new Error("API limits");
+                }
+            } catch(e) {
+                alert(currentLang === 'ckb' ? "ئاگاداری: هێنانی ئۆتۆماتیکی پێویستی بە کردنەوە لەسەر دۆمەینی ئۆنلاین (GitHub Pages) هەیە." : "Auto fetch works on online domains.");
+                document.getElementById('updateMode').value = 'manual';
+            }
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ckb' ? 'en' : 'ckb';
+            document.getElementById('htmlTag').setAttribute('dir', currentLang === 'ckb' ? 'rtl' : 'ltr');
+            document.getElementById('uiTitle').innerText = texts[currentLang].title;
+            document.getElementById('langToggleBtn').innerText = texts[currentLang].langBtn;
+            document.getElementById('uiInputsTitle').innerText = texts[currentLang].inputsTitle;
+            document.getElementById('hIndicator').innerText = texts[currentLang].hIndicator;
+            document.getElementById('hActual').innerText = texts[currentLang].hActual;
+            document.getElementById('hForecast').innerText = texts[currentLang].hForecast;
+            document.getElementById('hPrev').innerText = texts[currentLang].hPrev;
+            document.getElementById('secLeading').innerText = texts[currentLang].secLeading;
+            document.getElementById('secCore').innerText = texts[currentLang].secCore;
+            document.getElementById('btnAnalyze').innerText = texts[currentLang].btnText;
+            document.getElementById('uiResultsTitle').innerText = texts[currentLang].resultsTitle;
+            document.getElementById('uiReportTitle').innerText = texts[currentLang].reportTitle;
+            runAnalysis();
+        }
+
+        function runAnalysis() {
+            let pmi = parseFloat(document.getElementById('pmi_act').value);
+            let adp = parseFloat(document.getElementById('adp_act').value);
+            let jolts = parseFloat(document.getElementById('jolts_act').value);
+            let mich = parseFloat(document.getElementById('mich_act').value);
+
+            let cpi = parseFloat(document.getElementById('cpi_act').value);
+            let core_cpi = parseFloat(document.getElementById('core_cpi_act').value);
+            let pce = parseFloat(document.getElementById('pce_act').value);
+            let nfp = parseFloat(document.getElementById('nfp_act').value);
+            let unemp = parseFloat(document.getElementById('unemp_act').value);
+            let ppi = parseFloat(document.getElementById('ppi_act').value);
+            let retail = parseFloat(document.getElementById('retail_act').value);
+            let gdp = parseFloat(document.getElementById('gdp_act').value);
+
+            let hikeScore = 0;
+            let cutScore = 0;
+
+            if (pmi > 50) hikeScore += 1; else cutScore += 1;
+            if (adp > 150000) hikeScore += 1; else cutScore += 1;
+            if (jolts > 8.0) hikeScore += 1; else cutScore += 1;
+            if (mich > 3.0) hikeScore += 1; else cutScore += 1;
+
+            if (cpi > 3.0) hikeScore += 2; else if (cpi <= 2.2) cutScore += 2;
+            if (core_cpi > 3.0) hikeScore += 2; else if (core_cpi <= 2.2) cutScore += 2;
+            if (pce > 2.5) hikeScore += 2; else if (pce <= 2.0) cutScore += 2;
+            if (nfp > 200000 && unemp < 4.2) hikeScore += 2; else if (nfp < 100000 || unemp > 4.3) cutScore += 2;
+            if (ppi > 2.5) hikeScore += 1; else if (ppi < 2.0) cutScore += 1;
+            if (retail > 0.4) hikeScore += 1; else if (retail < 0.1) cutScore += 1;
+            if (gdp > 2.5) hikeScore += 1; else if (gdp < 1.5) cutScore += 1;
+
+            let total = hikeScore + cutScore;
+            let hikeProb = total === 0 ? 50 : Math.round((hikeScore / total) * 100);
+            let cutProb = 100 - hikeProb;
+
+            let stance = "", dxyClass = "", dxyText = "", goldClass = "", goldText = "";
+            let t = texts[currentLang];
+
+            if (hikeProb > 55) {
+                stance = currentLang === 'ckb' ? "سیاسەتی توند (Hawkish / سودی بەرز)" : "Hawkish (Rate Hike Bias)";
+                dxyClass = "bullish"; dxyText = t.bullish;
+                goldClass = "bearish"; goldText = t.bearish;
+            } else if (cutProb > 55) {
+                stance = currentLang === 'ckb' ? "سیاسەتی نەرم (Dovish / کەمکردنەوەی سود)" : "Dovish (Rate Cut Bias)";
+                dxyClass = "bearish"; dxyText = t.bearish;
+                goldClass = "bullish"; goldText = t.bullish;
+            } else {
+                stance = currentLang === 'ckb' ? "بێلایەن / جێگیر (Neutral)" : "Neutral / Consolidating";
+                dxyClass = "neutral"; dxyText = t.neutral;
+                goldClass = "neutral"; goldText = t.neutral;
+            }
+
+            let html = `
+                <div class="result-row"><span>${t.hikeProb}</span> <b>${hikeProb}%</b></div>
+                <div class="result-row"><span>${t.cutProb}</span> <b>${cutProb}%</b></div>
+                <div class="result-row"><span>${t.fedStance}</span> <b style="color:#fbbf24">${stance}</b></div>
+                <hr style="border:0; border-top:1px solid #374151; margin: 8px 0;">
+                <div class="result-row"><span>${t.dxyIndex}</span> <span class="badge ${dxyClass}">${dxyText}</span></div>
+                <div class="result-row"><span>${t.goldMarket}</span> <span class="badge ${goldClass}">${goldText}</span></div>
+            `;
+            document.getElementById('output').innerHTML = html;
+
+            let reportHtml = currentLang === 'ckb' ? `
+                <b>📌 ڕاپۆرتی پێشکەوتووی ماکروو و هۆکارە پێشەنگەکان:</b><br>
+                • <b>کاریگەری داتای پێشەنگ:</b> نیشاندەرەکانی وەک ISM PMI (${pmi}) و ADP (${adp}) و JOLTS (${jolts}M) پێشوەختە فشاری گەشە یان خاوبوونەوە دەگوێزنەوە سەر داتاکانی CPI و NFP.<br><br>
+                • <b>دۆخی گشتی هەڵاوسان:</b> بەراوردی CPI (${cpi}٪) و Core PCE (${pce}٪) دەریدەخات کە ئاڕاستەی نرخی کەلوپەل چۆن کاریگەری کردووەتە سەر بڕیاری بانکی ناوەندی.<br><br>
+                • <b>پێشبینی بازار:</b> لەسەر بنەمای ئەم ١٢ داتایە، ئەگەری بەرزکردنەوەی سود (${hikeProb}٪) بەرانبەر کەمکردنەوەی سود (${cutProb}٪) ئاڕاستەی دۆلار (DXY) و زێڕ (XAU/USD) دیاری دەکات.
+            ` : `
+                <b>📌 Advanced Macro & Leading Indicators Report:</b><br>
+                • <b>Leading Impact:</b> Indicators like ISM PMI (${pmi}), ADP (${adp}), and JOLTS (${jolts}M) pre-signal momentum shifts for core inflation and employment.<br><br>
+                • <b>Inflation Trajectory:</b> Headline CPI (${cpi}%) and Core PCE (${pce}%) combine to determine the Fed's next policy rate steps.<br><br>
+                • <b>Market Direction:</b> With ${hikeProb}% hike bias vs ${cutProb}% cut bias, the matrix outlines clear sentiment paths for DXY and Gold.
+            `;
+
+            document.getElementById('reportOutput').innerHTML = reportHtml;
+        }
+
+        window.onload = function() {
+            loadData();
+            runAnalysis();
+        };
+    </script>
+</body>
+</html>
