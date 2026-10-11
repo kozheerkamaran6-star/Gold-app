@@ -3,18 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fed & Gold Macro Matrix V9 Pro</title>
+    <title>Fed & Gold Macro Matrix V11 Pro</title>
     <meta name="theme-color" content="#0b0f19">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Tahoma, sans-serif; }
         body { background-color: #0b0f19; color: #f3f4f6; padding: 15px; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #1f2937; padding: 10px 15px; border-radius: 10px; }
-        header h1 { font-size: 14px; color: #fbbf24; }
-        .controls-top { display: flex; gap: 8px; align-items: center; }
-        .lang-btn, .mode-select { background: #374151; color: #fff; border: 1px solid #4b5563; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
-        .lang-btn:hover, .mode-select:hover { background: #4b5563; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #1f2937; padding: 10px 15px; border-radius: 10px; flex-wrap: wrap; gap: 10px; }
+        header h1 { font-size: 13px; color: #fbbf24; }
+        .controls-top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .lang-btn, .month-select { background: #374151; color: #fff; border: 1px solid #4b5563; padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        .lang-btn:hover, .month-select:hover { background: #4b5563; }
         .card { background-color: #1f2937; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .card h2 { font-size: 14px; margin-bottom: 10px; color: #60a5fa; border-bottom: 1px solid #374151; padding-bottom: 5px; }
+        .rate-banner { background: #111827; padding: 10px 12px; border-radius: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-right: 3px solid #fbbf24; font-size: 12px; }
+        .rate-banner input { width: 70px; padding: 4px; background: #1f2937; border: 1px solid #4b5563; color: #fff; text-align: center; border-radius: 4px; font-size: 12px; }
         .data-item { background: #111827; padding: 10px; border-radius: 8px; margin-bottom: 10px; border-right: 3px solid #60a5fa; }
         .input-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 6px; margin-top: 6px; align-items: center; }
         .input-grid span { font-size: 11px; color: #d1d5db; }
@@ -36,17 +38,37 @@
 <body>
 
     <header>
-        <h1 id="uiTitle">سیستمی پێشکەوتووی فێد و بازاڕ (V9 Pro)</h1>
+        <h1 id="uiTitle">سیستمی پێشکەوتووی فێد و بازاڕ (V11 Pro)</h1>
         <div class="controls-top">
-            <select id="updateMode" class="mode-select" onchange="handleModeChange()">
-                <option value="manual">دەستی (Manual)</option>
-                <option value="auto">نوێکردنەوەی ئۆتۆماتیکی (Auto Live)</option>
+            <!-- لیستی مانگەکانی ساڵ -->
+            <select id="selectedMonth" class="month-select" onchange="changeMonth()">
+                <option value="Jan">کانونی دووەم (Jan)</option>
+                <option value="Feb">پەڕپەڕە (Feb)</option>
+                <option value="Mar">ئادار (Mar)</option>
+                <option value="Apr">نیسان (Apr)</option>
+                <option value="May">ئایار (May)</option>
+                <option value="Jun">حوزەیران (Jun)</option>
+                <option value="Jul">تەمموز (Jul)</option>
+                <option value="Aug">ئاب (Aug)</option>
+                <option value="Sep">ئەیلوول (Sep)</option>
+                <option value="Oct">تشرینی یەکەم (Oct)</option>
+                <option value="Nov">تشرینی دووەم (Nov)</option>
+                <option value="Dec" selected>کانونی یەکەم (Dec)</option>
             </select>
             <button class="lang-btn" onclick="toggleLanguage()" id="langToggleBtn">English</button>
         </div>
     </header>
 
     <div class="card">
+        <!-- بەشی ڕێژەی سوودی بانکی فێد -->
+        <div class="rate-banner">
+            <span id="lblFedRate">ڕێژەی ئێستای سوودی فێد (Fed Funds Rate):</span>
+            <div style="display: flex; align-items: center; gap: 5px;">
+                <input type="number" id="fed_current_rate" value="4.50" step="0.25" oninput="saveData()">
+                <span style="font-weight: bold; color: #fbbf24;">%</span>
+            </div>
+        </div>
+
         <h2 id="uiInputsTitle">داتاکانی ماکروو (ئێستا، پێشبینی، پێشوو)</h2>
         <div class="headers-grid">
             <span id="hIndicator">نیشاندەر</span>
@@ -221,7 +243,7 @@
 
         const texts = {
             ckb: {
-                title: "سیستمی پێشکەوتووی فێد و بازاڕ (V9 Pro)",
+                title: "سیستمی پێشکەوتووی فێد و بازاڕ (V11 Pro)",
                 langBtn: "English",
                 inputsTitle: "داتاکانی ماکروو (ئێستا، پێشبینی، پێشوو)",
                 hIndicator: "نیشاندەر", hActual: "ئێستا", hForecast: "پێشبینی", hPrev: "پێشوو",
@@ -232,10 +254,11 @@
                 reportTitle: "ڕاپۆرتی تێروتەسەلی شیکاری و هەڵاوسان",
                 hikeProb: "ئەگەری بەرزکردنەوەی سود:", cutProb: "ئەگەری کەمکردنەوەی سود:",
                 fedStance: "دۆخی فێد:", dxyIndex: "ئیندێکسی دۆلار (DXY):", goldMarket: "بازاڕی زێڕ (XAU/USD):",
-                bullish: "بەرزبوونەوە / ئەرێنی", bearish: "دابەزین / نێگەتیف", neutral: "جێگیر / بێلایەن"
+                bullish: "بەرزبوونەوە / ئەرێنی", bearish: "دابەزین / نێگەتیف", neutral: "جێگیر / بێلایەن",
+                lblFedRate: "ڕێژەی ئێستای سوودی فێد (Fed Funds Rate):"
             },
             en: {
-                title: "Advanced Fed & Market Matrix V9 Pro",
+                title: "Advanced Fed & Market Matrix V11 Pro",
                 langBtn: "کوردی",
                 inputsTitle: "Macro Data (Actual, Forecast, Previous)",
                 hIndicator: "Indicator", hActual: "Actual", hForecast: "Forecast", hPrev: "Previous",
@@ -246,23 +269,29 @@
                 reportTitle: "Detailed Macro & Inflation Analysis Report",
                 hikeProb: "Rate Hike Probability:", cutProb: "Rate Cut Probability:",
                 fedStance: "Fed Stance:", dxyIndex: "Dollar Index (DXY):", goldMarket: "Gold Market (XAU/USD):",
-                bullish: "Bullish / Positive", bearish: "Bearish / Negative", neutral: "Consolidating / Neutral"
+                bullish: "Bullish / Positive", bearish: "Bearish / Negative", neutral: "Consolidating / Neutral",
+                lblFedRate: "Current Fed Funds Rate:"
             }
         };
 
-        const ids = ['pmi_act', 'pmi_fc', 'pmi_pr', 'adp_act', 'adp_fc', 'adp_pr', 'jolts_act', 'jolts_fc', 'jolts_pr', 'mich_act', 'mich_fc', 'mich_pr', 'cpi_act', 'cpi_fc', 'cpi_pr', 'core_cpi_act', 'core_cpi_fc', 'core_cpi_pr', 'pce_act', 'pce_fc', 'pce_pr', 'nfp_act', 'nfp_fc', 'nfp_pr', 'unemp_act', 'unemp_fc', 'unemp_pr', 'ppi_act', 'ppi_fc', 'ppi_pr', 'retail_act', 'retail_fc', 'retail_pr', 'gdp_act', 'gdp_fc', 'gdp_pr'];
+        const ids = ['fed_current_rate', 'pmi_act', 'pmi_fc', 'pmi_pr', 'adp_act', 'adp_fc', 'adp_pr', 'jolts_act', 'jolts_fc', 'jolts_pr', 'mich_act', 'mich_fc', 'mich_pr', 'cpi_act', 'cpi_fc', 'cpi_pr', 'core_cpi_act', 'core_cpi_fc', 'core_cpi_pr', 'pce_act', 'pce_fc', 'pce_pr', 'nfp_act', 'nfp_fc', 'nfp_pr', 'unemp_act', 'unemp_fc', 'unemp_pr', 'ppi_act', 'ppi_fc', 'ppi_pr', 'retail_act', 'retail_fc', 'retail_pr', 'gdp_act', 'gdp_fc', 'gdp_pr'];
+
+        function getActiveKey() {
+            let month = document.getElementById('selectedMonth').value;
+            return 'macroDataV11_' + month;
+        }
 
         function saveData() {
             let data = {};
             ids.forEach(id => {
                 data[id] = document.getElementById(id).value;
             });
-            localStorage.setItem('macroDataV9', JSON.stringify(data));
+            localStorage.setItem(getActiveKey(), JSON.stringify(data));
             runAnalysis();
         }
 
         function loadData() {
-            let saved = localStorage.getItem('macroDataV9');
+            let saved = localStorage.getItem(getActiveKey());
             if (saved) {
                 let data = JSON.parse(saved);
                 ids.forEach(id => {
@@ -270,33 +299,15 @@
                         document.getElementById(id).value = data[id];
                     }
                 });
-            }
-        }
-
-        async function handleModeChange() {
-            let mode = document.getElementById('updateMode').value;
-            if (mode === 'auto') {
-                await fetchRealEconomicData();
             } else {
-                alert(currentLang === 'ckb' ? "دۆخی دەستی چالاک کرا. دەتوانیت خۆت ژمارەکان بگۆڕیت." : "Manual mode enabled.");
+                // ئەگەر مانگەکە داتای تێنەبوو، نرخە بنەڕەتییەکان بهێڵەرەوە
+                runAnalysis();
             }
+            runAnalysis();
         }
 
-        async function fetchRealEconomicData() {
-            try {
-                // پێکبەستن بە خزمەتگوزاری سەرچاوەی کراوەی ئابووری بۆ وەرگرتنی نوێترین داتا
-                let response = await fetch('https://raw.githubusercontent.com/datasets/consumer-price-index/master/data/cpi.csv');
-                if (response.ok) {
-                    // لێرەدا دەتوانین داتای فەرمی بەکاربهێنین، وەک نموونە نوێترین بەهای CPI نوێ دەکەینەوە
-                    alert(currentLang === 'ckb' ? "داتای نوێی ئابووری بە سەرکەوتوویی هێنرا!" : "Live economic data fetched successfully!");
-                } else {
-                    throw new Error("Failed to fetch");
-                }
-            } catch (e) {
-                // ئەگەر ئینتەرنێت یان سێرڤەرەکە گیرەی تێدەکەوت، سیستەمەکە داتا خەزنکراوەکانی پێشووت دەهێنێتەوە بێ پچڕان
-                alert(currentLang === 'ckb' ? "ناتوانرێت ڕاستەوخۆ لەو سەرچاوەیە بخوێنرێتەوە، داتاکانی خەزنکراوی خۆت بەکارهاتن." : "Using saved local data fallback.");
-                document.getElementById('updateMode').value = 'manual';
-            }
+        function changeMonth() {
+            loadData();
         }
 
         function toggleLanguage() {
@@ -304,6 +315,7 @@
             document.getElementById('htmlTag').setAttribute('dir', currentLang === 'ckb' ? 'rtl' : 'ltr');
             document.getElementById('uiTitle').innerText = texts[currentLang].title;
             document.getElementById('langToggleBtn').innerText = texts[currentLang].langBtn;
+            document.getElementById('lblFedRate').innerText = texts[currentLang].lblFedRate;
             document.getElementById('uiInputsTitle').innerText = texts[currentLang].inputsTitle;
             document.getElementById('hIndicator').innerText = texts[currentLang].hIndicator;
             document.getElementById('hActual').innerText = texts[currentLang].hActual;
@@ -318,6 +330,7 @@
         }
 
         function runAnalysis() {
+            let fedRate = parseFloat(document.getElementById('fed_current_rate').value) || 4.5;
             let pmi = parseFloat(document.getElementById('pmi_act').value);
             let adp = parseFloat(document.getElementById('adp_act').value);
             let jolts = parseFloat(document.getElementById('jolts_act').value);
@@ -370,6 +383,7 @@
             }
 
             let html = `
+                <div class="result-row"><span>Fed Rate Baseline:</span> <b>${fedRate}%</b></div>
                 <div class="result-row"><span>${t.hikeProb}</span> <b>${hikeProb}%</b></div>
                 <div class="result-row"><span>${t.cutProb}</span> <b>${cutProb}%</b></div>
                 <div class="result-row"><span>${t.fedStance}</span> <b style="color:#fbbf24">${stance}</b></div>
@@ -379,16 +393,17 @@
             `;
             document.getElementById('output').innerHTML = html;
 
+            let selectedMonthText = document.getElementById('selectedMonth').options[document.getElementById('selectedMonth').selectedIndex].text;
             let reportHtml = currentLang === 'ckb' ? `
-                <b>📌 ڕاپۆرتی پێشکەوتووی ماکروو و هۆکارە پێشەنگەکان:</b><br>
-                • <b>کاریگەری داتای پێشەنگ:</b> نیشاندەرەکانی وەک ISM PMI (${pmi}) و ADP (${adp}) و JOLTS (${jolts}M) پێشوەختە فشاری گەشە یان خاوبوونەوە دەگوێزنەوە سەر داتاکانی CPI و NFP.<br><br>
-                • <b>دۆخی گشتی هەڵاوسان:</b> بەراوردی CPI (${cpi}٪) و Core PCE (${pce}٪) دەریدەخات کە ئاڕاستەی نرخی کەلوپەل چۆن کاریگەری کردووەتە سەر بڕیاری بانکی ناوەندی.<br><br>
-                • <b>پێشبینی بازار:</b> لەسەر بنەمای ئەم ١٢ داتایە، ئەگەری بەرزکردنەوەی سود (${hikeProb}٪) بەرانبەر کەمکردنەوەی سود (${cutProb}٪) ئاڕاستەی دۆلار (DXY) و زێڕ (XAU/USD) دیاری دەکات.
+                <b>📌 ڕاپۆرتی شیکاری مانگانە (${selectedMonthText}):</b><br>
+                • <b>بارودۆخی ئێستای سوود:</b> ڕێژەی سەرەکی بانکی فێد لەسەر (${fedRate}٪) جێگیرە.<br><br>
+                • <b>کاریگەری داتاکانی مانگەکە:</b> بەراوردی نیشاندەرەکانی وەک CPI (${cpi}٪) و NFP (${nfp}) لەم مانگەدا ئاڕاستەی بڕیاری داهاتووی فێد دیاری دەکەن.<br><br>
+                • <b>پێشبینی بازار:</b> بەپێی کێشکردنی نمرەکان (${hikeProb}٪ بەرانبەر ${cutProb}٪)، دۆخی دۆلار (DXY) و زێڕ (XAU/USD) ئاڕاستەی خۆیان لەم مانگەدا دەپارێزن.
             ` : `
-                <b>📌 Advanced Macro & Leading Indicators Report:</b><br>
-                • <b>Leading Impact:</b> Indicators like ISM PMI (${pmi}), ADP (${adp}), and JOLTS (${jolts}M) pre-signal momentum shifts for core inflation and employment.<br><br>
-                • <b>Inflation Trajectory:</b> Headline CPI (${cpi}%) and Core PCE (${pce}%) combine to determine the Fed's next policy rate steps.<br><br>
-                • <b>Market Direction:</b> With ${hikeProb}% hike bias vs ${cutProb}% cut bias, the matrix outlines clear sentiment paths for DXY and Gold.
+                <b>📌 Monthly Analysis Report (${selectedMonthText}):</b><br>
+                • <b>Current Policy Rate:</b> Fed Funds Rate baseline is at (${fedRate}%).<br><br>
+                • <b>Month Impact:</b> Evaluating CPI (${cpi}%) and NFP (${nfp}) for this specific month determines the Fed's stance.<br><br>
+                • <b>Market Sentiment:</b> With ${hikeProb}% hike bias vs ${cutProb}% cut bias, DXY and Gold paths are projected.
             `;
 
             document.getElementById('reportOutput').innerHTML = reportHtml;
@@ -396,7 +411,6 @@
 
         window.onload = function() {
             loadData();
-            runAnalysis();
         };
     </script>
 </body>
